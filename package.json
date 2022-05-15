@@ -1,9 +1,26 @@
 {
+  "name": "helpdesk_bot",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "npm tsc -b"
+  },
   "dependencies": {
     "@types/node-telegram-bot-api": "^0.57.0",
+    "express": "^4.18.1",
+    "node-fetch": "^2.0.0",
     "node-telegram-bot-api": "^0.57.0"
   },
   "devDependencies": {
     "typescript": "^4.6.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikita199801/tg_bot.git"
+  },
+  "author": "Nikita Kuzubov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nikita199801/tg_bot/issues"
+  },
+  "homepage": "https://github.com/nikita199801/tg_bot#readme"
 }

@@ -7,14 +7,28 @@
         {
             "type": "pwa-node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "run bot",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/index.ts",
+            "program": "${workspaceFolder}/compiled/index.js",
+            "preLaunchTask": "build:tsc",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]
-        }
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "run server",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/compiled/server.js",
+            "preLaunchTask": "build:tsc",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
     ]
 }
