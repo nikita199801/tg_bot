@@ -8,18 +8,60 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const node_fetch = require('node-fetch');
+const mongo = require('./mongo');
+const jira_client_1 = __importDefault(require("jira-client"));
+const jiraClient = new jira_client_1.default({
+    protocol: 'https',
+    host: 'ott-support.atlassian.net',
+    apiVersion: '3',
+    username: 'helpdeskott.bot@gmail.com',
+    password: ''
+});
 class JiraAPI {
-    createIssue(messageData) {
+    createIssue(type) {
         return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const db = mongo.getConnection();
+                const dbConfig = yield db.collection('bot_options').findOne({ _id: 'config' });
+                const issueType = dbConfig.data.issue.type[type];
+                const template = (yield db.collection('issues_templates').findOne({ _id: issueType })).data;
+                const res = yield jiraClient.addNewIssue(template);
+                console.log(`Created issue ${res.key}`);
+                return res;
+            }
+            catch (error) {
+                console.error(error);
+                return null;
+            }
         });
     }
-    getAllIssues() {
+    getIssue(issueKey) {
         return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const res = yield jiraClient.getIssue(issueKey);
+                return res;
+            }
+            catch (error) {
+                console.error(error);
+                return null;
+            }
         });
     }
-    moveIssue(status) {
+    moveIssue(issueKey, id) {
         return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield jiraClient.transitionIssue(issueKey, { "transition": { "id": id } });
+            }
+            catch (error) {
+                console.error(error);
+            }
         });
     }
 }
+exports.default = JiraAPI;
 //# sourceMappingURL=jira_api.js.map

@@ -14,7 +14,7 @@ const token = '12';
 class HelpdeskBot {
     getConfig() {
         return __awaiter(this, void 0, void 0, function* () {
-            const res = yield node_fetch('http://localhost:3000/');
+            const res = yield node_fetch('http://localhost:3000/bot/config');
             const config = yield res.json();
             return config;
         });
@@ -51,4 +51,4 @@ const helpdeskBot = new HelpdeskBot();
         };
     }
 }))();
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=bot.js.map

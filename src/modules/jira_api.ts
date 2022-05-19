@@ -1,60 +1,47 @@
-class JiraAPI {
-    async createIssue(messageData: Object): Promise<any> {
-        /**
-    curl -X POST -u "log:pass" 'https://ott-support.atlassian.net/rest/api/3/issue' \                                                            ✘ INT at   23:09:51
-  -H 'Accept: application/json' \
-  -H 'Content-Type: application/json' \
-  --data '{
-    "fields": {
-      "summary": "Testing create api",
-      "issuetype": {
-        "name": "Story"
-      },
-      "project": {
-        "key": "SUP"
-      },
-      "description": {
-        "type": "doc",
-        "version": 1,
-        "content": [
-          {
-            "type": "paragraph",
-            "content": [
-              {
-                "text": "Some random text",
-                "type": "text"
-              }
-            ]
-          }
-        ]
+const node_fetch = require('node-fetch')
+const mongo = require('./mongo')
+
+import JiraApi from 'jira-client';
+const jiraClient = new JiraApi({
+  protocol: 'https',
+  host: 'ott-support.atlassian.net',
+  apiVersion: '3',
+  username: 'helpdeskott.bot@gmail.com',
+  password: ''
+})
+
+
+export default class JiraAPI {
+    async createIssue(type: string): Promise<any> {
+      try {
+        const db = mongo.getConnection();
+        const dbConfig = await db.collection('bot_options').findOne({ _id: 'config' });
+        const issueType = dbConfig.data.issue.type[type];
+        const template = (await db.collection('issues_templates').findOne({ _id: issueType })).data;
+        const res = await jiraClient.addNewIssue(template)
+        console.log(`Created issue ${res.key}`)
+        return res;       
+      } catch (error) {
+        console.error(error);
+        return null;
       }
     }
-  }'    
 
-         */
-        
+    async getIssue(issueKey: string): Promise<JiraApi.IssueObject | null>{
+      try {
+        const res = await jiraClient.getIssue(issueKey);
+        return res
+      } catch (error) {
+        console.error(error)
+        return null
+      }
     }
 
-    async getAllIssues(): Promise<any>{
-        /**
-         * curl -D- -u "log:pass" -X GET \                                                                                                                ✘ INT at   23:17:23
-            -H "Content-Type: application/json" \
-            "https://ott-support.atlassian.net/rest/api/2/search?jql="
-
-         */
-    }
-
-
-    async moveIssue(status: string): Promise<void> {
-        /**
-         * curl -u "log:pass" -X POST --data '{                                                                                                                 at   23:37:49
-    "update": {
-    "transition": {
-        "id": "31"
-    }
-}' -H "Content-Type: application/json" https://ott-support.atlassian.net/rest/api/2/issue/{issue}/transitions
-
-
-         */
+    async moveIssue(issueKey: string, id: string): Promise<void> {
+      try {
+        await jiraClient.transitionIssue(issueKey, { "transition": { "id": id } });
+      } catch (error) {
+        console.error(error);
+      }
     }
 }

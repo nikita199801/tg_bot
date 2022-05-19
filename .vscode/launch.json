@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/compiled/index.js",
+            "program": "${workspaceFolder}/compiled/bot.js",
             "preLaunchTask": "build:tsc",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
