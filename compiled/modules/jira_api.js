@@ -62,6 +62,16 @@ class JiraAPI {
             }
         });
     }
+    assignIssue(issueKey, assigneName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield jiraClient.updateAssignee(issueKey, assigneName);
+            }
+            catch (error) {
+                console.error(error);
+            }
+        });
+    }
 }
 exports.default = JiraAPI;
 //# sourceMappingURL=jira_api.js.map

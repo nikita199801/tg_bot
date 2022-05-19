@@ -44,4 +44,12 @@ export default class JiraAPI {
         console.error(error);
       }
     }
+
+    async assignIssue(issueKey: string, assigneName: string) {
+      try {
+        await jiraClient.updateAssignee(issueKey, assigneName);
+      } catch (error) {
+        console.error(error)
+      }
+    }
 }
