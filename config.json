@@ -36,8 +36,10 @@
 
         ]
     },
-
-    "type": [
-
-    ]
+    "issue": {
+        "type": {
+            "new": "new_issue",
+            "fast": "fast_answer_issue"
+        }
+    } 
 }

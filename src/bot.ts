@@ -5,8 +5,8 @@ const token = '12';
 
 class HelpdeskBot {
   async getConfig() {
-    const res = await node_fetch('http://localhost:3000/');
-    const config =  await res.json();
+    const res = await node_fetch('http://localhost:3000/bot/config');
+    const config = await res.json();
     return config
   }
 
