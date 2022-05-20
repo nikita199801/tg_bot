@@ -12,13 +12,18 @@ const jiraClient = new JiraApi({
 
 
 export default class JiraAPI {
-    async createIssue(type: string): Promise<any> {
+    async createIssue(type: string, issueInfo: any): Promise<any> {
       try {
         const db = mongo.getConnection();
         const dbConfig = await db.collection('bot_options').findOne({ _id: 'config' });
         const issueType = dbConfig.data.issue.type[type];
         const template = (await db.collection('issues_templates').findOne({ _id: issueType })).data;
-        const res = await jiraClient.addNewIssue(template)
+        template.fields.description.content[0].content.push({text: issueInfo.problem, type: 'text'})
+        template.fields.summary = `${issueInfo.userId}`
+        const res = await jiraClient.addNewIssue(template);
+        res.status = issueInfo.priority || '11';
+        Object.assign(res, issueInfo)
+        db.collection('issues').insertOne(res);
         console.log(`Created issue ${res.key}`)
         return res;       
       } catch (error) {
@@ -43,5 +48,17 @@ export default class JiraAPI {
       } catch (error) {
         console.error(error);
       }
+    }
+
+    async assignIssue(issueKey: string, assigneName: string) {
+      try {
+        await jiraClient.updateAssignee(issueKey, assigneName);
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    async updateIssue(issueId: string, issueUpdate: object, query: object) {
+      
     }
 }
