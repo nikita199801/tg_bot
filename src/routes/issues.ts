@@ -4,7 +4,7 @@ import JiraAPI from '../modules/jira_api';
 const api = new JiraAPI();
 
 router.post('/new', async (req: any, res: any) => {
-    const result = await api.createIssue(req.body.type);
+    const result = await api.createIssue(req.body.type, req.body);
     res.json(result)
 })
 

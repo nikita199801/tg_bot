@@ -23,14 +23,19 @@ const jiraClient = new jira_client_1.default({
     password: ''
 });
 class JiraAPI {
-    createIssue(type) {
+    createIssue(type, issueInfo) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const db = mongo.getConnection();
                 const dbConfig = yield db.collection('bot_options').findOne({ _id: 'config' });
                 const issueType = dbConfig.data.issue.type[type];
                 const template = (yield db.collection('issues_templates').findOne({ _id: issueType })).data;
+                template.fields.description.content[0].content.push({ text: issueInfo.problem, type: 'text' });
+                template.fields.summary = `${issueInfo.userId}`;
                 const res = yield jiraClient.addNewIssue(template);
+                res.status = issueInfo.priority || '11';
+                Object.assign(res, issueInfo);
+                db.collection('issues').insertOne(res);
                 console.log(`Created issue ${res.key}`);
                 return res;
             }
@@ -70,6 +75,10 @@ class JiraAPI {
             catch (error) {
                 console.error(error);
             }
+        });
+    }
+    updateIssue(issueId, issueUpdate, query) {
+        return __awaiter(this, void 0, void 0, function* () {
         });
     }
 }

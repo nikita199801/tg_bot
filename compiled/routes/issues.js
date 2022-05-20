@@ -17,7 +17,7 @@ const router = express.Router();
 const jira_api_1 = __importDefault(require("../modules/jira_api"));
 const api = new jira_api_1.default();
 router.post('/new', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield api.createIssue(req.body.type);
+    const result = yield api.createIssue(req.body.type, req.body);
     res.json(result);
 }));
 router.post('/move', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
