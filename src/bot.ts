@@ -1,9 +1,10 @@
 import { isNull, isUndefined } from "lodash";
+import Server from "./server";
 
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch')
-
 const token = '';
+const server = new Server()
 
 class HelpdeskBot {
   async getConfig() {
@@ -18,7 +19,7 @@ class HelpdeskBot {
 }
 
 const helpdeskBot = new HelpdeskBot();
-(async () => {
+server.startServer().then(async () => {
   const config = await helpdeskBot.getConfig()
   const bot = await helpdeskBot.runBot(token);
   
@@ -32,37 +33,37 @@ const helpdeskBot = new HelpdeskBot();
           force_reply: true,
         }
       });
-
+  
     } else {
       const menu = createMenu(action.toLowerCase())
       bot.sendMessage(chatId, menu.title, menu.data);
     }
   });
-
+  
   
   bot.onText(/\/menu/, (msg: any) => {
     const chatId = msg.chat.id;
     const options = createMenu('main');
     bot.sendMessage(chatId, options.title, options.data);
   });
-
+  
   bot.onText(/\/stop/, (msg: any) => {
     const chatId = msg.chat.id;
     const options = createMenu('main');
     bot.sendMessage(chatId, "Пока!");
   });
-
+  
   bot.onText(/\/start/, (msg: any) => {
     const chatId = msg.chat.id;
     const options = createMenu('main');
     bot.sendMessage(chatId, "Привет, я чат-бот поддержки!");
   });
-
+  
   bot.onText(/^[A-zА-я0-9]/, async (msg: any) => {
     const chatId = msg.chat.id;
     const messageId = msg.message_id;
     let replyMessageId: number | null | undefined;
-
+  
     if (!isNull(msg.reply_to_message) && !isUndefined(msg.reply_to_message)) {
       replyMessageId = msg.reply_to_message.message_id;
     }
@@ -89,17 +90,19 @@ const helpdeskBot = new HelpdeskBot();
         method: 'post',
         body: JSON.stringify({
           problem,
-          userId: msg.from.id,
+          user_id: msg.from.id,
           first_name: msg.from.first_name,
+          user_name:  msg.from.username,
+          chat_id: msg.chat.id,
+          timestamp: Date.now(),
+          status: '11',
           type: 'new'
         }),
         headers: {'Content-Type': 'application/json'}
       });
-
+  
       const body = await res.json();
       return body;
   }
-})();
-
-
+});
   

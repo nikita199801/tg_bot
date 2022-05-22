@@ -8,11 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
+const server_1 = __importDefault(require("./server"));
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch');
 const token = '';
+const server = new server_1.default();
 class HelpdeskBot {
     getConfig() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -28,7 +33,7 @@ class HelpdeskBot {
     }
 }
 const helpdeskBot = new HelpdeskBot();
-(() => __awaiter(void 0, void 0, void 0, function* () {
+server.startServer().then(() => __awaiter(void 0, void 0, void 0, function* () {
     const config = yield helpdeskBot.getConfig();
     const bot = yield helpdeskBot.runBot(token);
     bot.on('callback_query', function onCallbackQuery(callbackQuery) {
@@ -92,8 +97,12 @@ const helpdeskBot = new HelpdeskBot();
                 method: 'post',
                 body: JSON.stringify({
                     problem,
-                    userId: msg.from.id,
+                    user_id: msg.from.id,
                     first_name: msg.from.first_name,
+                    user_name: msg.from.username,
+                    chat_id: msg.chat.id,
+                    timestamp: Date.now(),
+                    status: '11',
                     type: 'new'
                 }),
                 headers: { 'Content-Type': 'application/json' }
@@ -102,5 +111,5 @@ const helpdeskBot = new HelpdeskBot();
             return body;
         });
     }
-}))();
+}));
 //# sourceMappingURL=bot.js.map

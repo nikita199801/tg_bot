@@ -1,8 +1,10 @@
 {
   "name": "helpdesk_bot",
   "version": "0.0.1",
+  "main": "gui/main.js",
   "scripts": {
-    "build": "npm tsc -b"
+    "build": "npm tsc -b",
+    "start": "electron ."
   },
   "dependencies": {
     "@types/node-telegram-bot-api": "^0.57.0",
@@ -16,6 +18,7 @@
   "devDependencies": {
     "@types/jira-client": "^7.1.4",
     "@types/lodash": "^4.14.182",
+    "electron": "^18.2.4",
     "typescript": "^4.6.4"
   },
   "repository": {

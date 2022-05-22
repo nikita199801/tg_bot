@@ -13,8 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch = require('node-fetch');
-const mongo = require('./mongo');
 const jira_client_1 = __importDefault(require("jira-client"));
+const lodash_1 = require("lodash");
 const jiraClient = new jira_client_1.default({
     protocol: 'https',
     host: 'ott-support.atlassian.net',
@@ -23,19 +23,27 @@ const jiraClient = new jira_client_1.default({
     password: ''
 });
 class JiraAPI {
+    constructor(mongoConnection) {
+        this.mongo = mongoConnection;
+    }
     createIssue(type, issueInfo) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const db = mongo.getConnection();
-                const dbConfig = yield db.collection('bot_options').findOne({ _id: 'config' });
-                const issueType = dbConfig.data.issue.type[type];
-                const template = (yield db.collection('issues_templates').findOne({ _id: issueType })).data;
+                const dbConfig = (yield this.mongo.collection('bot_options').findOne({ _id: 'config' })).data;
+                const issueType = dbConfig.issue.type[type];
+                const template = (yield this.mongo.collection('issues_templates').findOne({ _id: issueType })).data;
+                if ((0, lodash_1.isEmpty)(template)) {
+                    return null;
+                }
+                ;
                 template.fields.description.content[0].content.push({ text: issueInfo.problem, type: 'text' });
-                template.fields.summary = `${issueInfo.userId}`;
+                template.fields.summary = `${issueInfo.chat_id}-${issueInfo.user_id}-${issueInfo.timestamp}`;
+                template.fields.customfield_10034 = issueInfo.user_id;
+                template.fields.customfield_10036 = `https://t.me/${issueInfo.user_name}`;
                 const res = yield jiraClient.addNewIssue(template);
-                res.status = issueInfo.priority || '11';
+                res.status = issueInfo.status || '11';
                 Object.assign(res, issueInfo);
-                db.collection('issues').insertOne(res);
+                this.mongo.collection('issues').insertOne(res);
                 console.log(`Created issue ${res.key}`);
                 return res;
             }
@@ -77,8 +85,15 @@ class JiraAPI {
             }
         });
     }
-    updateIssue(issueId, issueUpdate, query) {
+    getUsersIssues(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const res = yield jiraClient.searchJira(`assignee="${id}" AND resolution is empty`);
+                return res.issues;
+            }
+            catch (error) {
+                console.error(error);
+            }
         });
     }
 }

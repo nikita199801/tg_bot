@@ -11,3 +11,8 @@ module.exports.connect = async () => {
 module.exports.getConnection = () => {
     return db
 }
+
+module.exports.closeConnection = async () => {
+    console.info('DB connection closed.')
+    MongoClient.close
+}
