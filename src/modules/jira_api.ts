@@ -1,7 +1,9 @@
 const node_fetch = require('node-fetch')
-const mongo = require('./mongo')
 
 import JiraApi from 'jira-client';
+import { isEmpty } from 'lodash';
+import { Db } from 'mongodb';
+
 const jiraClient = new JiraApi({
   protocol: 'https',
   host: 'ott-support.atlassian.net',
@@ -10,20 +12,33 @@ const jiraClient = new JiraApi({
   password: ''
 })
 
-
 export default class JiraAPI {
+    mongo: Db;
+
+    constructor(mongoConnection: Db) {
+      this.mongo = mongoConnection;
+    }
+
     async createIssue(type: string, issueInfo: any): Promise<any> {
       try {
-        const db = mongo.getConnection();
-        const dbConfig = await db.collection('bot_options').findOne({ _id: 'config' });
-        const issueType = dbConfig.data.issue.type[type];
-        const template = (await db.collection('issues_templates').findOne({ _id: issueType })).data;
+        const dbConfig = (await this.mongo.collection('bot_options').findOne({ _id: 'config' }))!.data
+        const issueType = dbConfig.issue.type[type];
+
+        const template = (await this.mongo.collection('issues_templates').findOne({ _id: issueType }))!.data;
+        if (isEmpty(template)) {
+          return null;
+        };
+
         template.fields.description.content[0].content.push({text: issueInfo.problem, type: 'text'})
-        template.fields.summary = `${issueInfo.userId}`
+        template.fields.summary = `${issueInfo.chat_id}-${issueInfo.user_id}-${issueInfo.timestamp}`
+        template.fields.customfield_10034 = issueInfo.user_id
+        template.fields.customfield_10036 = `https://t.me/${issueInfo.user_name}`;
+
         const res = await jiraClient.addNewIssue(template);
-        res.status = issueInfo.priority || '11';
+        res.status = issueInfo.status || '11';
         Object.assign(res, issueInfo)
-        db.collection('issues').insertOne(res);
+
+        this.mongo.collection('issues').insertOne(res);
         console.log(`Created issue ${res.key}`)
         return res;       
       } catch (error) {
@@ -58,7 +73,12 @@ export default class JiraAPI {
       }
     }
 
-    async updateIssue(issueId: string, issueUpdate: object, query: object) {
-      
+    async getUsersIssues(id:string) {
+      try {
+        const res = await jiraClient.searchJira(`assignee="${id}" AND resolution is empty`);
+        return res.issues
+      } catch (error) {
+        console.error(error)
+      }
     }
 }

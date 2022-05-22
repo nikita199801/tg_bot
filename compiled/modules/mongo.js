@@ -19,4 +19,8 @@ module.exports.connect = () => __awaiter(void 0, void 0, void 0, function* () {
 module.exports.getConnection = () => {
     return db;
 };
+module.exports.closeConnection = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.info('DB connection closed.');
+    MongoClient.close;
+});
 //# sourceMappingURL=mongo.js.map
