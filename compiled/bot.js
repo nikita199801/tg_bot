@@ -16,12 +16,12 @@ const lodash_1 = require("lodash");
 const server_1 = __importDefault(require("./server"));
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch');
-const token = '';
+const token = '1472577063:AAHNzMrPmwNxLfPi8ZgqwuF9dumun0asV4k';
 const server = new server_1.default();
 class HelpdeskBot {
     getConfig() {
         return __awaiter(this, void 0, void 0, function* () {
-            const res = yield node_fetch('http://localhost:3000/bot/config');
+            const res = yield node_fetch('http://localhost:3000/bot/config?username=OttBot&password=123');
             const config = yield res.json();
             return config;
         });

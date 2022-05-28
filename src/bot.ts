@@ -3,12 +3,12 @@ import Server from "./server";
 
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch')
-const token = '';
+const token = '1472577063:AAHNzMrPmwNxLfPi8ZgqwuF9dumun0asV4k';
 const server = new Server()
 
 class HelpdeskBot {
   async getConfig() {
-    const res = await node_fetch('http://localhost:3000/bot/config');
+    const res = await node_fetch('http://localhost:3000/bot/config?username=OttBot&password=123');
     const config = await res.json();
     return config
   }
