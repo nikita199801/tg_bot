@@ -16,7 +16,7 @@ const lodash_1 = require("lodash");
 const server_1 = __importDefault(require("./server"));
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch');
-const token = '1472577063:AAHNzMrPmwNxLfPi8ZgqwuF9dumun0asV4k';
+const token = '';
 const server = new server_1.default();
 class HelpdeskBot {
     getConfig() {

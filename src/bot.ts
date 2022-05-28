@@ -3,7 +3,7 @@ import Server from "./server";
 
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch')
-const token = '1472577063:AAHNzMrPmwNxLfPi8ZgqwuF9dumun0asV4k';
+const token = '';
 const server = new Server()
 
 class HelpdeskBot {
