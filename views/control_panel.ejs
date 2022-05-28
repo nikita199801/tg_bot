@@ -1,0 +1,79 @@
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.7.4/jsoneditor.css" integrity="sha512-XmjnlPNi5tkrcqMGEG7ZOpGhny9t8fdCk0oxZxjFaqF3cl3UKv+51GgeUoY3Rf/ZaGtBvMZ9dDhceGZ1hcOyMw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.7.4/jsoneditor.min.js" integrity="sha512-KQaWlVsZF0iPXCR8p176hVrg/rlw+smy8dpJ+vwiuvoHyGr8PTVvaAV4ZmsAYdCvMRP8e3sB9pl1mRuaunaXrg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<title>Bot configuration</title>
+<body>
+	<div class="container h-10 d-flex flex-row-reverse">
+		<form action="http://localhost:3000/auth/logout/" method="post">
+			<input type="submit" class="btn btn-primary my-2 mx-5" value="Logout"/>
+		</form>
+    </div>
+	
+	<div class="container">
+		<div class="d-flex flex-row justify-content-around p-2">
+			<div class="d-flex flex-column p-3 my-2">
+				<label for="">Текущий конфиг в формате JSON</label>
+				<textarea id="copy_cfg" rows="2"></textarea>
+				<input type="button" class="btn btn-primary my-3" id="getconfig" placeholder="здесь результат" value="Скопировать конфиг" onclick="$('#copy_cfg').val(JSON.stringify(editor.get()))"/>
+			</div>
+			<div id="textField" class="d-flex flex-column p-3 my-2">
+				<label for="">Поле для вставки нового JSON</label>
+				<textarea></textarea>
+				<input type="button" class="btn btn-primary my-3" id="saveNew" value="Обновить"/>
+			</div>
+			
+		</div>
+		<div class="container h-60">
+			<input type="button" class="btn btn-primary my-3" id="save" value="Сохранить конфиг"/>
+			<div id="jsoneditor" style="height: 60%;"></div>
+		</div>
+	</div>
+    
+
+
+	<script>
+        var container = document.getElementById("jsoneditor");
+        var editor = new JSONEditor(container);
+        $.get('http://localhost:3000/admin/config', function(data){
+            editor.set(JSON.parse(data));
+        });
+
+		$('#save').click(function(){
+			$.ajax({
+				method:      "POST",
+				type:        "POST",
+                url:         "http://localhost:3000/admin/config/update/",
+				contentType: "application/json",
+				data:        JSON.stringify({config: editor.get() || {}}),
+				cache:       false,
+				dataType:    'json',
+				jsonp:       false,
+				success:     function(res){
+					alert('Конфиг обновлен');
+				},
+				error:       function(){
+					alert('Ошибка');
+				}
+			});
+			return false;
+		});
+
+		$('#saveNew').click(function(){
+			var newJson = $('#textField textarea').val();
+			try{
+				var h = $.parseJSON(newJson);
+				if(newJson && typeof h === "object") {
+					 editor.set(h);
+				}
+			} catch(e){
+				alert('JSON не валидный');
+			}
+		});
+	</script>
+</body>
+</html>

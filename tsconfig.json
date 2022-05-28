@@ -6,6 +6,7 @@
       "node_modules"
     ],
     "compilerOptions": {
+      "lib": ["ES6"],
       "alwaysStrict": true,
       "allowJs": true,
       "module": "commonjs",

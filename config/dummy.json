@@ -1,0 +1,111 @@
+{
+    "menu": {
+        "main": {
+            "title": "Выберите тип обращения",
+            "data": [
+                [
+                    {
+                        "text": "Вопросы по возврату",
+                        "callback_data": "REFUND"
+                    }
+                ],
+                [
+                    {
+                        "text": "Вопросы по оформлению",
+                        "callback_data": "BUY"
+                    }
+                ],
+                [
+                    {
+                        "text": "Справочная информация",
+                        "callback_data": "INFO"
+                    }
+                ],
+                [
+                    {
+                        "text": "Другое",
+                        "callback_data": "OTHER"
+                    }
+                ]
+            ]
+        },
+        "refund": {
+            "title": "Уточните, что именно нужно вернуть?",
+            "data": [
+                [
+                    {
+                        "text": "Авиабилеты",
+                        "callback_data": "AVIA"
+                    }
+                ],
+                [
+                    {
+                        "text": "ЖД билеты",
+                        "callback_data": "RAILWAYS"
+                    }
+                ],
+                [
+                    {
+                        "text": "Билеты на автобус",
+                        "callback_data": "BUSES"
+                    }
+                ],
+                [
+                    {
+                        "text": "Отели",
+                        "callback_data": "HOTELS"
+                    }
+                ],
+                [
+                    {
+                        "text": "Аренда авто",
+                        "callback_data": "CARS"
+                    }
+                ]
+            ]
+        },
+        "buy": {
+            "title": "Что бы вы хотели купить?",
+            "data": [
+                [
+                    {
+                        "text": "Авиабилеты",
+                        "callback_data": "AVIA"
+                    }
+                ],
+                [
+                    {
+                        "text": "ЖД билеты",
+                        "callback_data": "RAILWAYS"
+                    }
+                ],
+                [
+                    {
+                        "text": "Билеты на автобус",
+                        "callback_data": "BUSES"
+                    }
+                ],
+                [
+                    {
+                        "text": "Отели",
+                        "callback_data": "HOTELS"
+                    }
+                ],
+                [
+                    {
+                        "text": "Аренда авто",
+                        "callback_data": "CARS"
+                    }
+                ]
+            ]
+        },
+        "info": [1,2],
+        "other": []
+    },
+    "issue": {
+        "type": {
+            "new": "new_issue",
+            "fast": "fast_answer_issue"
+        }
+    }
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot configuration</title>
+    <link href="styles/styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="wrapper fadeInDown">
+    <div id="formContent">
+      <!-- Tabs Titles -->
+      <h2 class="inactive underlineHover"><a href="http://localhost:3000/">Sign In</a></h2>
+      <h2 class="active"><a href="http://localhost:3000/register">Sign Up</a></h2>
+  
+      <!-- Login Form -->
+      <form action="http://localhost:3000/register" method="POST">
+        <input type="text" id="username" class="fadeIn second" name="username" placeholder="username">
+        <input type="text" id="password" class="fadeIn third" name="password" placeholder="password">
+        <input type="text" id="email" class="fadeIn fourth" name="email" placeholder="email">
+        <input type="submit" class="fadeIn fifth" value="Register">
+      </form>
+
+    </div>
+  </div>
+
+</body>
+</html>

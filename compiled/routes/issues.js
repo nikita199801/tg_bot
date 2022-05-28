@@ -17,19 +17,20 @@ const router = express.Router();
 const mongo = require('../modules/mongo');
 const jira_api_1 = __importDefault(require("../modules/jira_api"));
 const api = new jira_api_1.default(mongo.getConnection());
-router.post('/new', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router
+    .post('/new', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield api.createIssue(req.body.type, req.body);
     res.json(result);
-}));
-router.post('/move', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}))
+    .post('/move', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield api.moveIssue(req.body.key, req.body.id);
     res.send(200, 'OK');
-}));
-router.post('/assign', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}))
+    .post('/assign', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield api.assignIssue(req.body.key, req.body.name);
     res.send(200, 'OK');
-}));
-router.get('/user/get/issues', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}))
+    .get('/user/get/issues', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield api.getUsersIssues('6286b551ca7d7f0069029bc6');
     res.send(200, 'OK');
 }));

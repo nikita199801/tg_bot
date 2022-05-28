@@ -12,6 +12,7 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/compiled/bot.js",
+            "runtimeExecutable": "/home/nikitak/.nvm/versions/node/v14.17.5/bin/node",
             "preLaunchTask": "build:tsc",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
@@ -25,6 +26,21 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/compiled/server.js",
+            "runtimeExecutable": "/home/nikitak/.nvm/versions/node/v14.17.5/bin/node",
+            "preLaunchTask": "build:tsc",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "mongo",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/compiled/modules/mongo.js",
+            "runtimeExecutable": "/home/nikitak/.nvm/versions/node/v14.17.5/bin/node",
             "preLaunchTask": "build:tsc",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
