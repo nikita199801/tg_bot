@@ -38,13 +38,9 @@ class JiraAPI {
                 ;
                 template.fields.description.content[0].content.push({ text: issueInfo.problem, type: 'text' });
                 template.fields.summary = `${issueInfo.chat_id}-${issueInfo.user_id}-${issueInfo.timestamp}`;
-                template.fields.customfield_10034 = issueInfo.user_id;
-                template.fields.customfield_10036 = `https://t.me/${issueInfo.user_name}`;
+                template.fields.customfield_10036 = (0, lodash_1.toString)(issueInfo.user_id);
+                template.fields.customfield_10035 = `https://t.me/${issueInfo.user_name}`;
                 const res = yield jiraClient.addNewIssue(template);
-                res.status = issueInfo.status || '11';
-                Object.assign(res, issueInfo);
-                this.mongo.collection('issues').insertOne(res);
-                console.log(`Created issue ${res.key}`);
                 return res;
             }
             catch (error) {
@@ -75,10 +71,10 @@ class JiraAPI {
             }
         });
     }
-    assignIssue(issueKey, assigneName) {
+    assignIssue(issueKey, assigneeId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield jiraClient.updateAssignee(issueKey, assigneName);
+                yield jiraClient.updateAssigneeWithId(issueKey, assigneeId);
             }
             catch (error) {
                 console.error(error);
@@ -93,6 +89,26 @@ class JiraAPI {
             }
             catch (error) {
                 console.error(error);
+            }
+        });
+    }
+    getUserInfo(userEmail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const options = {
+                    username: '',
+                    query: userEmail,
+                    maxResults: 1
+                };
+                const res = yield jiraClient.searchUsers(options);
+                if ((0, lodash_1.isEmpty)(res) && (0, lodash_1.isNull)(res)) {
+                    return null;
+                }
+                return res[0];
+            }
+            catch (error) {
+                console.error(error);
+                return null;
             }
         });
     }

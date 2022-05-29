@@ -1,10 +1,10 @@
-import { isNull, isUndefined } from "lodash";
-import Server from "./server";
+import { isEmpty, isNull, isUndefined } from "lodash";
+const server = require("./server");
 
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch')
 const token = '';
-const server = new Server()
+const redis = require('./modules/redis');
 
 class HelpdeskBot {
   async getConfig() {
@@ -22,7 +22,7 @@ const helpdeskBot = new HelpdeskBot();
 server.startServer().then(async () => {
   const config = await helpdeskBot.getConfig()
   const bot = await helpdeskBot.runBot(token);
-  
+  setInterval(() => checkAssignedIssues(), 5000);
   bot.on('callback_query', async function onCallbackQuery(callbackQuery: any) {
     const action = callbackQuery.data;
     const msg = callbackQuery.message;
@@ -70,6 +70,10 @@ server.startServer().then(async () => {
     
     if (replyMessageId && (messageId - 1  === replyMessageId)) {
       const res = await makeCreateIssueReq(msg);
+      if (res.message === 'in queue') {
+        bot.sendMessage(chatId,  `Ваще обращение находится в очереди. Как только появятся свободные операторы, мы Вам сообщим`);
+        return;
+      }
       bot.sendMessage(chatId,  `Ваше обращение зарегистрировано, его номер ${res.id}. Скоро вам ответят`);
     }
   });
@@ -103,6 +107,17 @@ server.startServer().then(async () => {
   
       const body = await res.json();
       return body;
+  }
+
+
+  async function checkAssignedIssues() {
+    const res = await node_fetch('http://localhost:3000/issue/check');
+    const issue = await res.json();
+    if (isEmpty(issue)) {
+      return
+    }
+    const {chat_id, id} = JSON.parse(issue);
+    bot.sendMessage(chat_id,  `Ваше обращение зарегистрировано, его номер ${id}. Скоро вам ответят`);
   }
 });
   
