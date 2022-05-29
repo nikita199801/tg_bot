@@ -8,16 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
-const server_1 = __importDefault(require("./server"));
+const server = require("./server");
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch');
 const token = '';
-const server = new server_1.default();
+const redis = require('./modules/redis');
 class HelpdeskBot {
     getConfig() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -36,6 +33,7 @@ const helpdeskBot = new HelpdeskBot();
 server.startServer().then(() => __awaiter(void 0, void 0, void 0, function* () {
     const config = yield helpdeskBot.getConfig();
     const bot = yield helpdeskBot.runBot(token);
+    setInterval(() => checkAssignedIssues(), 5000);
     bot.on('callback_query', function onCallbackQuery(callbackQuery) {
         return __awaiter(this, void 0, void 0, function* () {
             const action = callbackQuery.data;
@@ -78,6 +76,10 @@ server.startServer().then(() => __awaiter(void 0, void 0, void 0, function* () {
         }
         if (replyMessageId && (messageId - 1 === replyMessageId)) {
             const res = yield makeCreateIssueReq(msg);
+            if (res.message === 'in queue') {
+                bot.sendMessage(chatId, `Ваще обращение находится в очереди. Как только появятся свободные операторы, мы Вам сообщим`);
+                return;
+            }
             bot.sendMessage(chatId, `Ваше обращение зарегистрировано, его номер ${res.id}. Скоро вам ответят`);
         }
     }));
@@ -109,6 +111,17 @@ server.startServer().then(() => __awaiter(void 0, void 0, void 0, function* () {
             });
             const body = yield res.json();
             return body;
+        });
+    }
+    function checkAssignedIssues() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const res = yield node_fetch('http://localhost:3000/issue/check');
+            const issue = yield res.json();
+            if ((0, lodash_1.isEmpty)(issue)) {
+                return;
+            }
+            const { chat_id, id } = JSON.parse(issue);
+            bot.sendMessage(chat_id, `Ваше обращение зарегистрировано, его номер ${id}. Скоро вам ответят`);
         });
     }
 }));

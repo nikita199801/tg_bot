@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const mongo = require('../modules/mongo')
 import JiraAPI from '../modules/jira_api';
-
+const redis = require('../modules/redis');
 const api = new JiraAPI(mongo.getConnection());
+const issueStrategy = require('../modules/strategy').create(mongo, redis, api)
 
 router
     .post('/new', async (req: any, res: any) => {
-        const result = await api.createIssue(req.body.type, req.body);
+        const result = await issueStrategy.createIssue(req.body.type, req.body);
         res.json(result)
     })
 
@@ -25,5 +26,22 @@ router
         const result = await api.getUsersIssues('6286b551ca7d7f0069029bc6');
         res.send(200, 'OK');
     })
+
+    .get('/user', async (req: any, res: any) => {
+        const userInfo = await api.getUserInfo('helpdeskott.bot@gmail.com');
+        if (!userInfo) {
+            return null
+        }
+        res.send(200, 'OK');
+    })
+
+    .get('/check', async (req: any, res: any) => {
+        const issue = await issueStrategy.fetchKeyFromStorage('message');
+        if (!issue) {
+            return res.json({});
+        }
+        res.json(issue);
+    })
+
 
 module.exports = router;

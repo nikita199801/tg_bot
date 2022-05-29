@@ -1,7 +1,8 @@
 const node_fetch = require('node-fetch')
 
+import { query } from 'express';
 import JiraApi from 'jira-client';
-import { isEmpty } from 'lodash';
+import { isEmpty, isNull, toString } from 'lodash';
 import { Db } from 'mongodb';
 
 const jiraClient = new JiraApi({
@@ -31,15 +32,10 @@ export default class JiraAPI {
 
         template.fields.description.content[0].content.push({text: issueInfo.problem, type: 'text'})
         template.fields.summary = `${issueInfo.chat_id}-${issueInfo.user_id}-${issueInfo.timestamp}`
-        template.fields.customfield_10034 = issueInfo.user_id
-        template.fields.customfield_10036 = `https://t.me/${issueInfo.user_name}`;
+        template.fields.customfield_10036 = toString(issueInfo.user_id)
+        template.fields.customfield_10035 = `https://t.me/${issueInfo.user_name}`;
 
         const res = await jiraClient.addNewIssue(template);
-        res.status = issueInfo.status || '11';
-        Object.assign(res, issueInfo)
-
-        this.mongo.collection('issues').insertOne(res);
-        console.log(`Created issue ${res.key}`)
         return res;       
       } catch (error) {
         console.error(error);
@@ -65,9 +61,9 @@ export default class JiraAPI {
       }
     }
 
-    async assignIssue(issueKey: string, assigneName: string) {
+    async assignIssue(issueKey: string, assigneeId: string) {
       try {
-        await jiraClient.updateAssignee(issueKey, assigneName);
+        await jiraClient. updateAssigneeWithId(issueKey, assigneeId);
       } catch (error) {
         console.error(error)
       }
@@ -79,6 +75,27 @@ export default class JiraAPI {
         return res.issues
       } catch (error) {
         console.error(error)
+      }
+    }
+
+    async getUserInfo(userEmail:string): Promise<JiraApi.JsonResponse | null>{
+      try {
+        const options: JiraApi.SearchUserOptions = {
+          //username field is deprecated due to GDPR, 
+          //but has not null constraint.
+          username: '',
+          query: userEmail,
+          maxResults: 1
+        }
+
+        const res = await jiraClient.searchUsers(options)
+        if (isEmpty(res) && isNull(res)) {
+          return null;
+        }
+        return res[0];
+      } catch (error) {
+        console.error(error)
+        return null;
       }
     }
 }
