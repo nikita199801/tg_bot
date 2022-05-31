@@ -1,0 +1,64 @@
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.7.4/jsoneditor.css" integrity="sha512-XmjnlPNi5tkrcqMGEG7ZOpGhny9t8fdCk0oxZxjFaqF3cl3UKv+51GgeUoY3Rf/ZaGtBvMZ9dDhceGZ1hcOyMw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.7.4/jsoneditor.min.js" integrity="sha512-KQaWlVsZF0iPXCR8p176hVrg/rlw+smy8dpJ+vwiuvoHyGr8PTVvaAV4ZmsAYdCvMRP8e3sB9pl1mRuaunaXrg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<title>Bot configuration</title>
+<body>
+	<div class="container h-10 d-flex flex-row-reverse">
+		<form action="http://localhost:3000/auth/logout/" method="post">
+			<input type="submit" class="btn btn-primary my-2 mx-5" value="Logout"/>
+		</form>
+    </div>
+	<section class="vh-100" style="background-color: #f4f5f7;">
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-lg-6 mb-4 mb-lg-0">
+              <div class="card mb-3" style="border-radius: .5rem;">
+                <div class="row g-0">
+                  <div class="col-md-4 gradient-custom text-center text-white"
+                    style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
+                    <img src=<%=  user.avatarUrls['48x48'] %> alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                    <h5>Marie Horwitz</h5>
+                    <p>Web Designer</p>
+                    <i class="far fa-edit mb-5"></i>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body p-4">
+                      <h6><%= user.username %> </h6>
+                      <hr class="mt-0 mb-4">
+                      <div class="row pt-1">
+                        <div class="col-6 mb-3">
+                          <h6>Email</h6>
+                          <p class="text-muted"><%= user.email %> </p>
+                        </div>
+                        <div class="col-6 mb-3">
+                          <h6>Новых заявок (на текущий момент)</h6>
+                          <p class="text-muted"><%= user.issuesOpen %> </p>
+                        </div>
+                      </div>
+                      <h6>Последние заявки</h6>
+                      <hr class="mt-0 mb-4">
+                      <div>
+                        <ol>
+                            <% for( let idx = 0; idx < issues.length; idx++ ) { %>
+                                <li> 
+                                    <%= issues[idx].id %>
+                                    <a href=<%= issues[idx].self%>>К задаче в Jira</a>
+                                 </li>
+                            <% } %>
+                            </ol>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+</body>
+</html>

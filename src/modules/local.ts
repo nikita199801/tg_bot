@@ -1,5 +1,5 @@
+import mongo from "../modules/mongo"; 
 const LocalStrategy = require('passport-local');
-const mongo = require('./mongo');
 module.exports = new LocalStrategy(
     async function (username: string, password: string, done: Function) {
         const db =  mongo.getConnection()

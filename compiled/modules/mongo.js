@@ -11,16 +11,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const { MongoClient } = require('mongodb');
 let db;
-module.exports.connect = () => __awaiter(void 0, void 0, void 0, function* () {
-    const client = yield MongoClient.connect('mongodb://localhost:6100/');
-    db = yield client.db('helpdesk_db');
-    console.log("MonogDB connected");
-});
-module.exports.getConnection = () => {
-    return db;
+const mongo = {
+    connect: () => __awaiter(void 0, void 0, void 0, function* () {
+        const client = yield MongoClient.connect('mongodb://localhost:6100/');
+        db = yield client.db('helpdesk_db');
+        console.log("MonogDB connected");
+    }),
+    getConnection: () => {
+        return db;
+    },
+    closeConnection: () => __awaiter(void 0, void 0, void 0, function* () {
+        console.info('DB connection closed.');
+        MongoClient.close;
+    })
 };
-module.exports.closeConnection = () => __awaiter(void 0, void 0, void 0, function* () {
-    console.info('DB connection closed.');
-    MongoClient.close;
-});
+exports.default = mongo;
 //# sourceMappingURL=mongo.js.map

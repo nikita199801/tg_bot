@@ -12,19 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const passport_1 = __importDefault(require("passport"));
+const mongo_1 = __importDefault(require("../modules/mongo"));
 const router = require('express').Router();
 router
-    .post('/login', passport_1.default.authenticate('password', { session: true }), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    .get('/dashboard/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.isAuthenticated()) {
-        const { user } = req.session.passport;
-        res.redirect(`/profile/dashboard/${user}`);
+        const db = mongo_1.default.getConnection();
+        const test = 'asdsadsadsad';
+        const user = yield db.collection('users').findOne({ _id: req.params.id });
+        const issues = yield db.collection('issues').find({}).limit(10).toArray();
+        issues.forEach(e => e.self = `https://ott-support.atlassian.net/browse/${e.key}`);
+        res.render('profile', { user: Object.assign({}, user), issues });
     }
-}))
-    .post('/logout', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    req.logout(function (err) {
-        res.redirect('/');
-    });
 }));
 module.exports = router;
-//# sourceMappingURL=auth.js.map
+//# sourceMappingURL=profile.js.map
