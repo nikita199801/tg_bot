@@ -4,7 +4,6 @@ const server = require("./server");
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch')
 const token = '';
-const redis = require('./modules/redis');
 
 class HelpdeskBot {
   async getConfig() {

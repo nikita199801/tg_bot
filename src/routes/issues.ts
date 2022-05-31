@@ -1,7 +1,8 @@
+import mongo from "../modules/mongo"; 
+import JiraAPI from '../modules/jira_api';
+
 const express = require('express');
 const router = express.Router();
-const mongo = require('../modules/mongo')
-import JiraAPI from '../modules/jira_api';
 const redis = require('../modules/redis');
 const api = new JiraAPI(mongo.getConnection());
 const issueStrategy = require('../modules/strategy').create(mongo, redis, api)

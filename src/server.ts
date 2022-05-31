@@ -1,14 +1,14 @@
-import { isNull } from "lodash";
+import { isNull, isUndefined } from "lodash";
 import passport from "passport";
 import { v4 as uuidv4 } from "uuid";
 import JiraAPI from "./modules/jira_api";
+import mongo from "./modules/mongo"
 var bodyParser = require('body-parser');
 const session = require('express-session');
 const http = require('http');
 
 const express = require('express')
 const app = express()
-let mongo = require('./modules/mongo');
 let redis = require('./modules/redis');
 const LocalStrategy = require('./modules/local')
 let RedisStore = require("connect-redis")(session)
@@ -22,9 +22,12 @@ module.exports.startServer = async () => {
     });
     
     passport.deserializeUser(async function (user: any, done) {
-        const retrivedUser = await mongo.getConnection().collection('users').findOne({ _id: user })
-        const _user = user === retrivedUser._id ? retrivedUser : false;
-        done(null, _user);
+        const db = mongo.getConnection();
+        const retrivedUser = await db.collection('users').findOne({ _id: user });
+        if (!isNull(retrivedUser) && !isUndefined(retrivedUser)) {
+            const _user = user === retrivedUser._id ? retrivedUser : false;
+            done(null, _user);
+        }
     });
     
     app.set('view engine', 'ejs');
@@ -101,6 +104,7 @@ module.exports.startServer = async () => {
     app.use('/issue', require('./routes/issues'));
     app.use('/auth', require('./routes/auth'));
     app.use('/admin', require('./routes/admin'));
+    app.use('/profile', require('./routes/profile'));
 
     const server = app.listen(port, async () => {
         console.log(`App listening on port ${port}`)

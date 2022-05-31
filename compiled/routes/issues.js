@@ -12,13 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const mongo_1 = __importDefault(require("../modules/mongo"));
+const jira_api_1 = __importDefault(require("../modules/jira_api"));
 const express = require('express');
 const router = express.Router();
-const mongo = require('../modules/mongo');
-const jira_api_1 = __importDefault(require("../modules/jira_api"));
 const redis = require('../modules/redis');
-const api = new jira_api_1.default(mongo.getConnection());
-const issueStrategy = require('../modules/strategy').create(mongo, redis, api);
+const api = new jira_api_1.default(mongo_1.default.getConnection());
+const issueStrategy = require('../modules/strategy').create(mongo_1.default, redis, api);
 router
     .post('/new', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield issueStrategy.createIssue(req.body.type, req.body);

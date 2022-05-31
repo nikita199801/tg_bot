@@ -1,6 +1,5 @@
-import e, { Router } from "express";
-import passport, { authenticate } from "passport";
-const mongo = require('../modules/mongo');
+import { Router } from "express";``
+import mongo from "../modules/mongo";
 const dbConfig = require('../modules/db_config').create(mongo);
 
 const router = Router();

@@ -17,7 +17,8 @@ const router = require('express').Router();
 router
     .post('/login', passport_1.default.authenticate('password', { session: true }), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.isAuthenticated()) {
-        res.redirect('/admin/config/panel');
+        const { user } = req.session.passport;
+        res.redirect(`/profile/dashboard/${user}`);
     }
 }))
     .post('/logout', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

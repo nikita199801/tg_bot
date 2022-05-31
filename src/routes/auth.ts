@@ -6,7 +6,8 @@ router
 
     .post('/login', passport.authenticate('password', { session: true }), async (req: any, res: any, next: Function) => {
         if (req.isAuthenticated()) {
-            res.redirect('/admin/config/panel')
+            const { user } = req.session.passport;
+            res.redirect(`/profile/dashboard/${user}`);
         }
     })
 

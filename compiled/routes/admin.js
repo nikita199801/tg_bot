@@ -8,10 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const mongo = require('../modules/mongo');
-const dbConfig = require('../modules/db_config').create(mongo);
+``;
+const mongo_1 = __importDefault(require("../modules/mongo"));
+const dbConfig = require('../modules/db_config').create(mongo_1.default);
 const router = (0, express_1.Router)();
 router
     .get('/config', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -26,7 +30,7 @@ router
     .post('/config/update', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.body;
-        yield mongo.getConnection().collection('bot_options').replaceOne({ _id: 'config' }, { data: data.config });
+        yield mongo_1.default.getConnection().collection('bot_options').replaceOne({ _id: 'config' }, { data: data.config });
         res.json({
             result: 'ok',
         });
