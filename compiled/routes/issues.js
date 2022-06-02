@@ -21,34 +21,64 @@ const api = new jira_api_1.default(mongo_1.default.getConnection());
 const issueStrategy = require('../modules/strategy').create(mongo_1.default, redis, api);
 router
     .post('/new', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield issueStrategy.createIssue(req.body.type, req.body);
-    res.json(result);
+    try {
+        const result = yield issueStrategy.createIssue(req.body.type, req.body);
+        res.json(result);
+    }
+    catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
 }))
     .post('/move', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield api.moveIssue(req.body.key, req.body.id);
-    res.send(200, 'OK');
+    try {
+        yield api.moveIssue(req.body.key, req.body.id);
+        res.sendStatus(201);
+    }
+    catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+}))
+    .post('/close', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const message = { done: false };
+        const { key, id, jiraId, chatId } = req.body;
+        issueStrategy.updateIssueCounter(jiraId, 'decr');
+        api.moveIssue(key, id);
+        message.chat_id = parseInt(chatId, 10);
+        message.done = true;
+        message.id = key;
+        issueStrategy.storeInMemory('message', message);
+        yield issueStrategy.updateIssue(key, { status: id });
+        res.sendStatus(201);
+    }
+    catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
 }))
     .post('/assign', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield api.assignIssue(req.body.key, req.body.name);
-    res.send(200, 'OK');
-}))
-    .get('/user/get/issues', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield api.getUsersIssues('6286b551ca7d7f0069029bc6');
-    res.send(200, 'OK');
-}))
-    .get('/user', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userInfo = yield api.getUserInfo('helpdeskott.bot@gmail.com');
-    if (!userInfo) {
-        return null;
+    try {
+        yield api.assignIssue(req.body.key, req.body.name);
+        res.sendStatus(201);
     }
-    res.send(200, 'OK');
+    catch (error) {
+        console.error(error);
+    }
 }))
     .get('/check', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const issue = yield issueStrategy.fetchKeyFromStorage('message');
-    if (!issue) {
-        return res.json({});
+    try {
+        const issue = yield issueStrategy.fetchKeyFromStorage('message');
+        if (!issue) {
+            return res.json({});
+        }
+        res.json(issue);
     }
-    res.json(issue);
+    catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
 }));
 module.exports = router;
 //# sourceMappingURL=issues.js.map

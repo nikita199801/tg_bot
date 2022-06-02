@@ -13,7 +13,7 @@ const lodash_1 = require("lodash");
 const server = require("./server");
 const TelegramBot = require('node-telegram-bot-api');
 const node_fetch = require('node-fetch');
-const token = '';
+const token = '1472577063:AAEiz-o1coZ3G-PxVa_dYkFs_VIjEwkvS8c';
 class HelpdeskBot {
     getConfig() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -115,11 +115,15 @@ server.startServer().then(() => __awaiter(void 0, void 0, void 0, function* () {
     function checkAssignedIssues() {
         return __awaiter(this, void 0, void 0, function* () {
             const res = yield node_fetch('http://localhost:3000/issue/check');
-            const issue = yield res.json();
-            if ((0, lodash_1.isEmpty)(issue)) {
+            const message = yield res.json();
+            if ((0, lodash_1.isEmpty)(message)) {
                 return;
             }
-            const { chat_id, id } = JSON.parse(issue);
+            const { chat_id, id, done } = JSON.parse(message);
+            if (done) {
+                bot.sendMessage(chat_id, `Ваше обращение под номерм ${id} закрыто.`);
+                return;
+            }
             bot.sendMessage(chat_id, `Ваше обращение зарегистрировано, его номер ${id}. Скоро вам ответят`);
         });
     }

@@ -50,10 +50,9 @@ class IssueAssignmentStrategy {
             }
         });
     }
-    storeIssueInMemory(issueInfo) {
+    storeInMemory(key, value) {
         return __awaiter(this, void 0, void 0, function* () {
-            const key = "issues";
-            const issue = JSON.stringify(issueInfo);
+            const issue = JSON.stringify(value);
             this.redis.rpush(key, issue);
         });
     }
@@ -72,6 +71,7 @@ class IssueAssignmentStrategy {
                     const issue = JSON.parse(res);
                     yield this.jiraApi.assignIssue(issue.id, user);
                     yield this.updateIssueCounter(user, 'incr');
+                    yield this.updateIssue(issue.id, { assignee: user });
                     this.mongo.collection('issues').insertOne(issue);
                     this.redis.lpush('message', res);
                 }
@@ -95,6 +95,18 @@ class IssueAssignmentStrategy {
             }
         });
     }
+    updateIssue(id, query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.mongo.collection('issues').updateOne({ id }, { $set: query });
+                return true;
+            }
+            catch (error) {
+                console.error(error);
+                return false;
+            }
+        });
+    }
     createIssue(issueType, issueInfoFromBot) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -106,11 +118,12 @@ class IssueAssignmentStrategy {
                 issue.status = issueInfoFromBot.status || '11';
                 Object.assign(issue, issueInfoFromBot);
                 if ((0, lodash_1.isNull)(user)) {
-                    this.storeIssueInMemory(issue);
+                    this.storeInMemory("issues", issue);
                     return { message: 'in queue' };
                 }
                 yield this.jiraApi.assignIssue(issue.id, user);
                 yield this.updateIssueCounter(user, 'incr');
+                Object.assign(issue, { assignee: user });
                 console.log(`Created issue ${issue.key}`);
                 this.mongo.collection('issues').insertOne(issue);
                 return issue;

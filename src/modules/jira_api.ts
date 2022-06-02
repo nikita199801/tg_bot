@@ -10,7 +10,7 @@ const jiraClient = new JiraApi({
   host: 'ott-support.atlassian.net',
   apiVersion: '3',
   username: 'helpdeskott.bot@gmail.com',
-  password: ''
+  password: '0gmrB2btNz6wE7YqVpwfE127'
 })
 
 export default class JiraAPI {
@@ -36,6 +36,10 @@ export default class JiraAPI {
         template.fields.customfield_10035 = `https://t.me/${issueInfo.user_name}`;
 
         const res = await jiraClient.addNewIssue(template);
+        Object.assign(res, {
+          chatLink: `https://t.me/${issueInfo.user_name}`,
+          user_id: toString(issueInfo.user_id)
+        });
         return res;       
       } catch (error) {
         console.error(error);

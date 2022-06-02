@@ -16,13 +16,23 @@ const mongo_1 = __importDefault(require("../modules/mongo"));
 const router = require('express').Router();
 router
     .get('/dashboard/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.isAuthenticated()) {
-        const db = mongo_1.default.getConnection();
-        const test = 'asdsadsadsad';
-        const user = yield db.collection('users').findOne({ _id: req.params.id });
-        const issues = yield db.collection('issues').find({}).limit(10).toArray();
-        issues.forEach(e => e.self = `https://ott-support.atlassian.net/browse/${e.key}`);
-        res.render('profile', { user: Object.assign({}, user), issues });
+    try {
+        if (req.isAuthenticated()) {
+            const db = mongo_1.default.getConnection();
+            const user = yield db.collection('users').findOne({ _id: req.params.id });
+            if (!user) {
+                res.redirect('/');
+                return;
+            }
+            const issues = yield db.collection('issues').find({ assignee: user.accountId, status: { $in: ['11', '21'] } }).sort({ id: -1 }).limit(10).toArray();
+            const closedIssues = yield db.collection('issues').find({ assignee: user.accountId, status: '31' }).sort({ id: -1 }).limit(10).toArray();
+            issues.forEach(e => e.self = `https://ott-support.atlassian.net/browse/${e.key}`);
+            res.render('profile', { user: Object.assign({}, user), issues, closedIssues });
+        }
+    }
+    catch (error) {
+        console.error(error);
+        res.sendStatus(500);
     }
 }));
 module.exports = router;
