@@ -6,29 +6,28 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.7.4/jsoneditor.min.js" integrity="sha512-KQaWlVsZF0iPXCR8p176hVrg/rlw+smy8dpJ+vwiuvoHyGr8PTVvaAV4ZmsAYdCvMRP8e3sB9pl1mRuaunaXrg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
-<title>Bot configuration</title>
+<title>Agent profile</title>
 <body>
 	<div class="container h-10 d-flex flex-row-reverse">
-		<form action="http://localhost:3000/auth/logout/" method="post">
+    <form action="http://localhost:3000/auth/logout/" method="post">
+      <a href="http://localhost:3000/admin/config/panel" class="btn btn-primary my-2">Configure</a>
 			<input type="submit" class="btn btn-primary my-2 mx-5" value="Logout"/>
 		</form>
     </div>
-	<section class="vh-100" style="background-color: #f4f5f7;">
+	<section style="background-color: #f4f5f7;">
         <div class="container py-5 h-100">
-          <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col col-lg-6 mb-4 mb-lg-0">
+          <div class="row d-flex justify-content-center align-items-center">
+            <div class="col col-lg-12 mb-4 mb-lg-0">
               <div class="card mb-3" style="border-radius: .5rem;">
                 <div class="row g-0">
                   <div class="col-md-4 gradient-custom text-center text-white"
                     style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
                     <img src=<%=  user.avatarUrls['48x48'] %> alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
-                    <h5>Marie Horwitz</h5>
-                    <p>Web Designer</p>
                     <i class="far fa-edit mb-5"></i>
                   </div>
-                  <div class="col-md-8">
+                  <div class="col-md-8" >
                     <div class="card-body p-4">
-                      <h6><%= user.username %> </h6>
+                      <h6><%= user.displayName %> </h6>
                       <hr class="mt-0 mb-4">
                       <div class="row pt-1">
                         <div class="col-6 mb-3">
@@ -43,14 +42,36 @@
                       <h6>Последние заявки</h6>
                       <hr class="mt-0 mb-4">
                       <div>
-                        <ol>
                             <% for( let idx = 0; idx < issues.length; idx++ ) { %>
-                                <li> 
-                                    <%= issues[idx].id %>
-                                    <a href=<%= issues[idx].self%>>К задаче в Jira</a>
-                                 </li>
+                                <div class="d-flex justify-content-evenly align-items-center my-2 shadow p-3 mb-3 bg-body rounded">
+                                    <strong>Заявка - <%= issues[idx].id %></strong>
+                                    <br>
+                                    <a class="btn btn-outline-dark btn-sm" href=<%= issues[idx].self%>>К задаче в Jira</a>
+                                    <br>
+                                    <a class="btn btn-outline-dark btn-sm" href=<%= issues[idx].chatLink%>>Перейти в чат</a>
+                                    <br>
+                                    <button id="start" class="btn btn-primary btn-sm" val=<%= issues[idx].id %>>Взять в работу</button>
+                                    <button uid=<%= user.accountId %> class="btn btn-success btn-sm" id="close" val=<%= issues[idx].id %> chat=<%= issues[idx].chat_id %>>Закрыть заявку</button>
+                                    <br>
+                                </div>
                             <% } %>
-                            </ol>
+                      </div>
+                      <h6>Закрытые заявки</h6>
+                      <hr class="mt-0 mb-4">
+                      <div>
+                            <% for( let idx = 0; idx < closedIssues.length; idx++ ) { %>
+                                <div class="d-flex justify-content-evenly align-items-center my-2 shadow p-3 mb-3 bg-body rounded">
+                                    <strong>Заявка - <%= closedIssues[idx].id %></strong>
+                                    <br>
+                                    <a class="btn btn-outline-dark btn-sm" href=<%= closedIssues[idx].self%>>К задаче в Jira</a>
+                                    <br>
+                                    <a class="btn btn-outline-dark btn-sm" href=<%= closedIssues[idx].chatLink%>>Перейти в чат</a>
+                                    <br>
+                                    <button id="start" class="btn btn-primary btn-sm" disabled>Взять в работу</button>
+                                    <button uid=<%= user.accountId %> class="btn btn-success btn-sm" disabled>Закрыть заявку</button>
+                                    <br>
+                                </div>
+                            <% } %>
                       </div>
                     </div>
                   </div>
@@ -60,5 +81,57 @@
           </div>
         </div>
       </section>
+      <script>
+        $('#start').click(function(){
+          const key = $('#start').attr('val');
+          $.ajax({
+            method:      "POST",
+            type:        "POST",
+            url:         "http://localhost:3000/issue/move",
+            contentType: "application/json",
+            data:        JSON.stringify({key: key, id: '21'}),
+            cache:       false,
+            jsonp:       false,
+            success:     function(res){
+              console.log('asdasdasdsa')
+              alert('Задача переведана в статус "В процессе"');
+              location.reload();
+            },
+            error:       function(res){
+              console.log(res)
+              alert('Ошибка');
+              location.reload();
+            }
+          });
+          return false;
+        });
+
+
+        $('#close').click(function(){
+          const key = $('#start').attr('val');
+          const jiraId = $('#close').attr('uid')
+          const chatId = $('#close').attr('chat')
+          console.log(key)
+          $.ajax({
+            method:      "POST",
+            type:        "POST",
+            url:         "http://localhost:3000/issue/close",
+            contentType: "application/json",
+            data:        JSON.stringify({ key: key, id: '31', jiraId, chatId }),
+            cache:       false,
+            jsonp:       false,
+            success:     function(res){
+              alert('Заявка закрыта');
+              location.reload();
+            },
+            error:       function(){
+              alert('Ошибка');
+              location.reload();
+            }
+          });
+          return false;
+        });
+
+      </script>
 </body>
 </html>

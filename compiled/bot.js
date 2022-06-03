@@ -39,7 +39,7 @@ server.startServer().then(() => __awaiter(void 0, void 0, void 0, function* () {
             const msg = callbackQuery.message;
             const chatId = msg.chat.id;
             if (action.toLowerCase() == 'other') {
-                const replyPrompt = yield bot.sendMessage(chatId, "Сообщите Вашу проблему, я передам ее коллегам.", {
+                yield bot.sendMessage(chatId, "Сообщите Вашу проблему, я передам ее коллегам.", {
                     reply_markup: {
                         force_reply: true,
                     }
@@ -59,14 +59,28 @@ server.startServer().then(() => __awaiter(void 0, void 0, void 0, function* () {
     bot.onText(/\/stop/, (msg) => {
         const chatId = msg.chat.id;
         const options = createMenu('main');
-        bot.sendMessage(chatId, "Пока!");
+        bot.sendMessage(chatId, config.reply.bye);
     });
     bot.onText(/\/start/, (msg) => {
         const chatId = msg.chat.id;
         const options = createMenu('main');
-        bot.sendMessage(chatId, "Привет, я чат-бот поддержки!");
+        bot.sendMessage(chatId, config.reply.greet);
     });
-    bot.onText(/^[A-zА-я0-9]/, (msg) => __awaiter(void 0, void 0, void 0, function* () {
+    bot.onText(/^[0-5]{1}$/, (msg) => __awaiter(void 0, void 0, void 0, function* () {
+        const chatId = msg.chat.id;
+        const messageId = msg.message_id;
+        let replyMessageId;
+        if (!(0, lodash_1.isNull)(msg.reply_to_message) && !(0, lodash_1.isUndefined)(msg.reply_to_message)) {
+            replyMessageId = msg.reply_to_message.message_id;
+        }
+        if (replyMessageId && (messageId - 1 === replyMessageId)) {
+            yield sendStatistics(msg);
+            bot.sendMessage(chatId, config.reply.thanks);
+            return;
+        }
+        return;
+    }));
+    bot.onText(/^[A-zА-я0-9]{2,}/, (msg) => __awaiter(void 0, void 0, void 0, function* () {
         const chatId = msg.chat.id;
         const messageId = msg.message_id;
         let replyMessageId;
@@ -76,7 +90,7 @@ server.startServer().then(() => __awaiter(void 0, void 0, void 0, function* () {
         if (replyMessageId && (messageId - 1 === replyMessageId)) {
             const res = yield makeCreateIssueReq(msg);
             if (res.message === 'in queue') {
-                bot.sendMessage(chatId, `Ваще обращение находится в очереди. Как только появятся свободные операторы, мы Вам сообщим`);
+                bot.sendMessage(chatId, config.reply.inQueue);
                 return;
             }
             bot.sendMessage(chatId, `Ваше обращение зарегистрировано, его номер ${res.id}. Скоро вам ответят`);
@@ -112,14 +126,39 @@ server.startServer().then(() => __awaiter(void 0, void 0, void 0, function* () {
             return body;
         });
     }
+    function sendStatistics(msg) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const feedback = msg.text;
+            const res = yield node_fetch('http://localhost:3000/issue/stats', {
+                method: 'post',
+                body: JSON.stringify({
+                    feedback,
+                    user_id: msg.from.id,
+                    first_name: msg.from.first_name,
+                    user_name: msg.from.username,
+                    chat_id: msg.chat.id,
+                }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+        });
+    }
     function checkAssignedIssues() {
         return __awaiter(this, void 0, void 0, function* () {
             const res = yield node_fetch('http://localhost:3000/issue/check');
-            const issue = yield res.json();
-            if ((0, lodash_1.isEmpty)(issue)) {
+            const message = yield res.json();
+            if ((0, lodash_1.isEmpty)(message)) {
                 return;
             }
-            const { chat_id, id } = JSON.parse(issue);
+            const { chat_id, id, done } = JSON.parse(message);
+            if (done) {
+                bot.sendMessage(chat_id, `Ваше обращение под номерм ${id} закрыто.`);
+                bot.sendMessage(chat_id, config.reply.feedback, {
+                    reply_markup: {
+                        force_reply: true,
+                    }
+                });
+                return;
+            }
             bot.sendMessage(chat_id, `Ваше обращение зарегистрировано, его номер ${id}. Скоро вам ответят`);
         });
     }

@@ -41,6 +41,10 @@ class JiraAPI {
                 template.fields.customfield_10036 = (0, lodash_1.toString)(issueInfo.user_id);
                 template.fields.customfield_10035 = `https://t.me/${issueInfo.user_name}`;
                 const res = yield jiraClient.addNewIssue(template);
+                Object.assign(res, {
+                    chatLink: `https://t.me/${issueInfo.user_name}`,
+                    user_id: (0, lodash_1.toString)(issueInfo.user_id)
+                });
                 return res;
             }
             catch (error) {

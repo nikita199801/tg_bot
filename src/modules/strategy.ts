@@ -46,10 +46,22 @@ class IssueAssignmentStrategy {
         }
     }
 
-    async storeIssueInMemory(issueInfo: any) {
-        const key = "issues"
-        const issue = JSON.stringify(issueInfo)
-        this.redis.rpush(key, issue);
+    async storeInMemory(key: string, value: any) {
+        try {
+            const issue = JSON.stringify(value)
+            this.redis.rpush(key, issue);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async saveStatistics(value: any) {
+        try {
+            Object.assign(value, { created_at: Date.now() });
+            await this.mongo.collection('stats').insertOne(value);
+        } catch (error) {
+            console.error(error);
+        }
     }
     
     async checkQueue() {
@@ -67,6 +79,7 @@ class IssueAssignmentStrategy {
                 const issue = JSON.parse(res);
                 await this.jiraApi.assignIssue(issue.id, user);
                 await this.updateIssueCounter(user, 'incr');
+                Object.assign(issue, { assignee: user });
                 this.mongo.collection('issues').insertOne(issue);
                 this.redis.lpush('message', res);
             }
@@ -87,6 +100,16 @@ class IssueAssignmentStrategy {
         }
     }
 
+    async updateIssue(id: string, query: any) {
+        try {
+            await this.mongo.collection('issues').updateOne({ id }, { $set: query });
+            return true
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    }
+
     async createIssue(issueType: string, issueInfoFromBot: any) {   
         try {
             const issue = await this.jiraApi.createIssue(issueType, issueInfoFromBot);
@@ -97,12 +120,13 @@ class IssueAssignmentStrategy {
             issue.status = issueInfoFromBot.status || '11';
             Object.assign(issue, issueInfoFromBot)
             if (isNull(user)) {
-                this.storeIssueInMemory(issue);
+                this.storeInMemory("issues", issue);
                 return { message: 'in queue' };
             }
     
             await this.jiraApi.assignIssue(issue.id, user);
             await this.updateIssueCounter(user, 'incr');
+            Object.assign(issue, {assignee: user});
             console.log(`Created issue ${issue.key}`)
             this.mongo.collection('issues').insertOne(issue);
             return issue
