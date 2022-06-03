@@ -20,7 +20,7 @@ const jiraClient = new jira_client_1.default({
     host: 'ott-support.atlassian.net',
     apiVersion: '3',
     username: 'helpdeskott.bot@gmail.com',
-    password: '0gmrB2btNz6wE7YqVpwfE127'
+    password: ''
 });
 class JiraAPI {
     constructor(mongoConnection) {

@@ -21,5 +21,15 @@ router
             res.sendStatus(500);
         }
     })
+    .get('/dashboard', async(req: any, res: any) => {
+        try {
+            if (req.isAuthenticated()) {
+                res.redirect(`http://localhost:3000/profile/dashboard/${req.session.passport.user}`);
+            }
+        } catch (error) {
+            console.error(error);
+            res.sendStatus(500);
+        }
+    })
 
 module.exports = router;

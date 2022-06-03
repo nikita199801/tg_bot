@@ -16,12 +16,18 @@ const mongo_1 = __importDefault(require("../modules/mongo"));
 const LocalStrategy = require('passport-local');
 module.exports = new LocalStrategy(function (username, password, done) {
     return __awaiter(this, void 0, void 0, function* () {
-        const db = mongo_1.default.getConnection();
-        const user = yield db.collection('users').findOne({ username: username, password });
-        if (!user) {
+        try {
+            const db = mongo_1.default.getConnection();
+            const user = yield db.collection('users').findOne({ username: username, password });
+            if (!user) {
+                return done(null, false);
+            }
+            return done(null, user, { scope: 'all' });
+        }
+        catch (error) {
+            console.error(error);
             return done(null, false);
         }
-        return done(null, user, { scope: 'all' });
     });
 });
 //# sourceMappingURL=local.js.map

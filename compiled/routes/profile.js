@@ -34,6 +34,17 @@ router
         console.error(error);
         res.sendStatus(500);
     }
+}))
+    .get('/dashboard', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (req.isAuthenticated()) {
+            res.redirect(`http://localhost:3000/profile/dashboard/${req.session.passport.user}`);
+        }
+    }
+    catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
 }));
 module.exports = router;
 //# sourceMappingURL=profile.js.map

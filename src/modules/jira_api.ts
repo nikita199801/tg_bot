@@ -10,7 +10,7 @@ const jiraClient = new JiraApi({
   host: 'ott-support.atlassian.net',
   apiVersion: '3',
   username: 'helpdeskott.bot@gmail.com',
-  password: '0gmrB2btNz6wE7YqVpwfE127'
+  password: ''
 })
 
 export default class JiraAPI {

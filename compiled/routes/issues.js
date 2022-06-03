@@ -40,6 +40,18 @@ router
         res.sendStatus(500);
     }
 }))
+    .post('/stats', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = req.body;
+        ;
+        yield issueStrategy.saveStatistics(data);
+        res.sendStatus(201);
+    }
+    catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+}))
     .post('/close', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const message = { done: false };

@@ -47,8 +47,21 @@ class IssueAssignmentStrategy {
     }
 
     async storeInMemory(key: string, value: any) {
-        const issue = JSON.stringify(value)
-        this.redis.rpush(key, issue);
+        try {
+            const issue = JSON.stringify(value)
+            this.redis.rpush(key, issue);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async saveStatistics(value: any) {
+        try {
+            Object.assign(value, { created_at: Date.now() });
+            await this.mongo.collection('stats').insertOne(value);
+        } catch (error) {
+            console.error(error);
+        }
     }
     
     async checkQueue() {
@@ -66,7 +79,7 @@ class IssueAssignmentStrategy {
                 const issue = JSON.parse(res);
                 await this.jiraApi.assignIssue(issue.id, user);
                 await this.updateIssueCounter(user, 'incr');
-                await this.updateIssue(issue.id, {assignee: user})
+                Object.assign(issue, { assignee: user });
                 this.mongo.collection('issues').insertOne(issue);
                 this.redis.lpush('message', res);
             }

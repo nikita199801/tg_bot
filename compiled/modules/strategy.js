@@ -52,8 +52,24 @@ class IssueAssignmentStrategy {
     }
     storeInMemory(key, value) {
         return __awaiter(this, void 0, void 0, function* () {
-            const issue = JSON.stringify(value);
-            this.redis.rpush(key, issue);
+            try {
+                const issue = JSON.stringify(value);
+                this.redis.rpush(key, issue);
+            }
+            catch (error) {
+                console.error(error);
+            }
+        });
+    }
+    saveStatistics(value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                Object.assign(value, { created_at: Date.now() });
+                yield this.mongo.collection('stats').insertOne(value);
+            }
+            catch (error) {
+                console.error(error);
+            }
         });
     }
     checkQueue() {
@@ -71,7 +87,7 @@ class IssueAssignmentStrategy {
                     const issue = JSON.parse(res);
                     yield this.jiraApi.assignIssue(issue.id, user);
                     yield this.updateIssueCounter(user, 'incr');
-                    yield this.updateIssue(issue.id, { assignee: user });
+                    Object.assign(issue, { assignee: user });
                     this.mongo.collection('issues').insertOne(issue);
                     this.redis.lpush('message', res);
                 }

@@ -29,6 +29,17 @@ router
         }
     })
 
+    .post('/stats', async (req: any, res: any) => {
+        try {
+            const data = req.body;;
+            await issueStrategy.saveStatistics(data);
+            res.sendStatus(201);
+        } catch (error) {
+            console.error(error);
+            res.sendStatus(500);
+        }
+    })
+
     //Endpoint for moving issue to done
     .post('/close', async (req: any, res: any) => {
         try {
