@@ -1,1 +1,1 @@
-# tg_bot
+# tg_bot with jira integration
